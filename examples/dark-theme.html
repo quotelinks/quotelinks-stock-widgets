@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quotelinks Stock Widgets – Dark theme</title>
+<style>
+  body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#e5e7eb;background:#0f172a}
+  main{max-width:960px;margin:0 auto;padding:24px 16px}
+  a{color:#93c5fd}
+  .row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+</style>
+</head>
+<body>
+
+<div class="ql-tickertape" data-theme="dark">
+  Stock quotes by <a href="https://www.quotelinks.com/">Quotelinks</a>
+</div>
+
+<main>
+  <h1>Dark theme</h1>
+  <p>Use <code>data-theme="dark"</code>, or <code>data-theme="auto"</code> to follow the visitor's system setting.</p>
+  <div class="row">
+    <div class="ql-stockcard" data-symbol="NVDA" data-theme="dark">
+      <a href="https://www.quotelinks.com/stocks/nvda.html">NVDA stock quote</a> by
+      <a href="https://www.quotelinks.com/">Quotelinks</a>
+    </div>
+    <div class="ql-movers" data-market="stocks" data-rows="10" data-theme="dark">
+      <a href="https://www.quotelinks.com/stocks.html">US stock movers</a> by
+      <a href="https://www.quotelinks.com/">Quotelinks</a>
+    </div>
+  </div>
+</main>
+
+<script src="https://www.quotelinks.com/widgets/tickertape.js" async></script>
+<script src="https://www.quotelinks.com/widgets/stockcard.js" async></script>
+<script src="https://www.quotelinks.com/widgets/movers.js" async></script>
+</body>
+</html>

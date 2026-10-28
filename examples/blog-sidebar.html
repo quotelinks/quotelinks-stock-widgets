@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quotelinks Stock Widgets – Blog layout</title>
+<style>
+  body{margin:0;font:17px/1.65 Georgia,serif;color:#222;background:#fff}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 16px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:40px}
+  aside{font-family:system-ui,sans-serif;display:flex;flex-direction:column;gap:24px}
+  @media (max-width:800px){.wrap{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <article>
+    <h1>Why I'm watching Microsoft this quarter</h1>
+    <p>Example blog post. Drop a Stock Card next to any ticker you write about, so readers see the
+       latest close without leaving the page.</p>
+    <div class="ql-stockcard" data-symbol="MSFT" data-size="compact">
+      <a href="https://www.quotelinks.com/stocks/msft.html">MSFT stock quote</a> by
+      <a href="https://www.quotelinks.com/">Quotelinks</a>
+    </div>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore
+       et dolore magna aliqua.</p>
+  </article>
+
+  <aside>
+    <div class="ql-movers" data-market="stocks" data-rows="5" data-size="compact">
+      <a href="https://www.quotelinks.com/stocks.html">US stock movers</a> by
+      <a href="https://www.quotelinks.com/">Quotelinks</a>
+    </div>
+    <div class="ql-tickertape" data-symbols="SPY,QQQ,DIA,IWM" data-style="boxed" data-size="compact">
+      Stock quotes by <a href="https://www.quotelinks.com/">Quotelinks</a>
+    </div>
+  </aside>
+</div>
+
+<script src="https://www.quotelinks.com/widgets/stockcard.js" async></script>
+<script src="https://www.quotelinks.com/widgets/movers.js" async></script>
+<script src="https://www.quotelinks.com/widgets/tickertape.js" async></script>
+</body>
+</html>
