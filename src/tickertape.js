@@ -15,7 +15,9 @@
  *
  * The Quotelinks link inside the div stays in the host page (light DOM) and is shown at the right end of the strip
  * through a named slot; it is never removed, hidden or changed. Each symbol opens its quotelinks.com page in a new tab.
- * Rendering is in a Shadow DOM. One request per tape: /widgets/api/tickertape.php (end-of-day data, cached 15 min).
+ * Rendering is in a Shadow DOM. One request per tape, once per page load (no polling): /widgets/api/tickertape.php
+ * (2026-11-10: delayed intraday prices during US market hours, refreshed on the server every 5 min; the latest close
+ * otherwise). The label shows "As of 11:42 AM ET" for intraday prices, "Close Nov 10" for closing prices.
  * Scrolling pauses on hover / keyboard focus and when the strip is off screen; "reduce motion" visitors get a still strip.
  * 2026-11-10: pause on :focus-visible only (a clicked symbol no longer keeps the strip paused after returning to the tab).
  */
@@ -79,6 +81,16 @@
   function num(v, d) { return v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
   function show(s) { return s.replace(/-/g, '.'); }
   function day(d) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(d || ''); return m ? MON[+m[2] - 1] + ' ' + (+m[3]) : ''; }
+  // Label for a reply: "As of 11:42 AM ET" (intraday, j.t) or "Close Nov 10" (j.d), '' if neither.
+  function stamp(j) {
+    if (j.t) {
+      try {
+        return 'As of ' + new Date(j.t * 1000).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET';
+      } catch (e) { return ''; }
+    }
+    var d = day(j.d);
+    return d ? 'Close ' + d : '';
+  }
   function norm(list) {
     var out = [];
     (list || '').split(/[\s,;]+/).forEach(function (s) {
@@ -142,14 +154,14 @@
     var paint = function (inner, asof) {
       root.innerHTML = '<style>' + CSS + '</style><div class="w"><div class="' + cls + '" role="region" aria-label="Stock quotes">' +
         '<div class="vp"><div class="tr">' + inner + '</div></div>' +
-        '<div class="by">' + (asof ? '<span class="as">Close ' + esc(asof) + '</span>' : '') + '<span class="q">Quotes by</span> ' + by + '</div></div></div>';
+        '<div class="by">' + (asof ? '<span class="as"' + (/^As/.test(asof) ? ' title="Delayed quotes"' : '') + '>' + esc(asof) + '</span>' : '') + '<span class="q">Quotes by</span> ' + by + '</div></div></div>';
     };
     paint(syms.length ? syms.map(function (s) { return item({ s: s }); }).join('') : '<span class="na">Loading quotes\u2026</span>', '');
 
     load(syms).then(function (j) {
       if (!j || !j.q.length) { paint('<span class="na">Quotes unavailable</span>', ''); return; }
       var html = j.q.map(function (e) { return item(e, false); }).join('');
-      paint(html, day(j.d));
+      paint(html, stamp(j));
       var t = root.querySelector('.t'), tr = root.querySelector('.tr'), vp = root.querySelector('.vp');
       var running = false;
       var fit = function () {
