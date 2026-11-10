@@ -14,7 +14,9 @@
  *
  * The two links inside the div stay in the host page (light DOM) and are shown in the card footer through
  * named slots; they are never removed, hidden or changed. Company logo when quotelinks has one, else a monogram. Rendering is in a Shadow DOM, so host CSS and card
- * CSS don't mix. One request per symbol: /widgets/api/stockcard.php (end-of-day data, cached 15 minutes).
+ * CSS don't mix. One request per symbol, once per page load (no polling): /widgets/api/stockcard.php.
+ * 2026-11-10: delayed intraday prices during US market hours (refreshed on the server every 5 min), the latest close
+ * otherwise. The line under the price reads "Delayed \u00b7 as of 11:42 AM ET" or "Close \u00b7 Nov 10, 2026".
  * Cards added later (e.g. by a page builder) are picked up automatically; window.qlStockcard.scan() also works.
  */
 (function () {
@@ -93,6 +95,15 @@
     var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(d || '');
     return m ? MON[+m[2] - 1] + ' ' + (+m[3]) + ', ' + m[1] : '';
   }
+  // "Delayed \u00b7 as of 11:42 AM ET" (intraday reply, q.t) or "Close \u00b7 Nov 10, 2026" (q.d), '' if neither.
+  function stamp(q) {
+    if (q.t) {
+      try {
+        return 'Delayed \u00b7 as of ' + new Date(q.t * 1000).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET';
+      } catch (e) { return ''; }
+    }
+    return q.d ? 'Close \u00b7 ' + day(q.d) : '';
+  }
   function mono(s) { return esc(s.replace(/[^A-Z0-9]/g, '').slice(0, 2)); }
 
   function spark(sp, dir) {
@@ -129,7 +140,7 @@
     var dir = q.ch > 0 ? 'u' : q.ch < 0 ? 'd' : 'f', sg = q.ch > 0 ? '+' : '';
     var h = header(sym, q) + '<div class="px"><span class="pr">$' + price(q.p) + '</span>' +
       (q.ch != null ? '<span class="ch ' + dir + '">' + sg + num(q.ch, Math.abs(q.p) >= 1 ? 2 : 4) + (q.cp != null ? ' (' + sg + num(q.cp, 2) + '%)' : '') + '</span>' : '') +
-      '</div>' + (q.d ? '<div class="as">Close \u00b7 ' + day(q.d) + '</div>' : '');
+      '</div>' + (stamp(q) ? '<div class="as">' + esc(stamp(q)) + '</div>' : '');
     if (!full) return h;
     if (q.sp && q.sp.length > 4) h += spark(q.sp, dir);
     if (q.h52 != null && q.l52 != null && q.h52 > q.l52) {
