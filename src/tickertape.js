@@ -17,6 +17,7 @@
  * through a named slot; it is never removed, hidden or changed. Each symbol opens its quotelinks.com page in a new tab.
  * Rendering is in a Shadow DOM. One request per tape: /widgets/api/tickertape.php (end-of-day data, cached 15 min).
  * Scrolling pauses on hover / keyboard focus and when the strip is off screen; "reduce motion" visitors get a still strip.
+ * 2026-11-10: pause on :focus-visible only (a clicked symbol no longer keeps the strip paused after returning to the tab).
  */
 (function () {
   'use strict';
@@ -48,7 +49,11 @@
     '.t.still .vp{overflow-x:auto;scrollbar-width:none}.t.still .vp::-webkit-scrollbar{display:none}',
     '.tr{display:flex;width:max-content;height:100%}',
     '.t.run .tr{animation:qltt var(--dur,60s) linear infinite}',
-    '.t.run:hover .tr,.t.run:focus-within .tr,.t.off .tr{animation-play-state:paused}',
+    '.t.run:hover .tr,.t.off .tr{animation-play-state:paused}',
+    // Keyboard focus only: a mouse click also focuses the link, and since it opens in a new tab the focus
+    // stays after the visitor comes back, which kept the strip paused. Separate rule so browsers without
+    // :has() drop only this one and keep hover-pause.
+    '.t.run:has(.it:focus-visible) .tr{animation-play-state:paused}',
     '@keyframes qltt{from{transform:translateX(0)}to{transform:translateX(-50%)}}',
     '.it{display:flex;align-items:center;gap:7px;padding:0 16px;height:100%;white-space:nowrap;color:inherit;text-decoration:none;border-right:1px solid var(--ln)}',
     '.t.cmp .it{padding:0 12px;gap:6px}',
